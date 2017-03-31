@@ -30,7 +30,7 @@ jobs:
         icon_url: http://cl.ly/image/3e1h0H3H2s0P/concourse-logo.png
         text: |
           . build tests passed
-          <http://http://192.168.100.4:8080/teams/my-team/pipelines/flight-school|View build details>
+          <http://192.168.100.4:8080/teams/main/pipelines/flight-school|View build details>
         username: CI
     on_failure:
       put: slack
@@ -39,5 +39,5 @@ jobs:
         icon_url: http://cl.ly/image/3e1h0H3H2s0P/concourse-logo.png
         text: |
           . build tests failed
-          <http://192.168.100.4:8080/teams/my-team/pipelines/flight-school|View build details>
+          <http://192.168.100.4:8080/teams/main/pipelines/flight-school|View build details>
         username: CI
