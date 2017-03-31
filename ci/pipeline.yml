@@ -8,6 +8,24 @@ resources:
   type: slack-notification
   source:
     url: https://hooks.slack.com/services/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
+- name: mesoform-triton-lab
+  type: http-api
+  source:
+    uri: https://192.168.78.4
+    method: POST
+    ssl_verify: false
+    triton_key: {{SDC_KEY}}
+    triton_account: {{SDC_ACCOUNT}}
+    triton_key_signature: {{TRITON_KEY_SIGNATURE}} # will need to be generated each time. Probably as a job. See https://github.com/joyent/sdc-cloudapi/blob/master/docs/index.md#using-curl-with-cloudapi and associated Appendix
+    headers:
+      Authorization: "Signature keyId=\"/{triton_account}/keys/{triton_key}\",algorithm=\"rsa-sha256\" {triton_key_signature}"
+      accept-version: "~8||~7"
+      Content-Type: application/json # may need to be application/x-www-form-urlencoded
+      Accept: application/json
+      Date: {{DATE}}
+    form_data:
+      image: 2b683a82-a066-11e3-97ab-2faa44701c5a
+      package: 7b17343c-94af-6266-e0e8-893a3b9993d0
 
 resource_types:
 - name: slack-notification
@@ -40,4 +58,29 @@ jobs:
         text: |
           . build tests failed
           <http://192.168.100.4:8080/teams/main/pipelines/flight-school|View build details>
+        username: CI
+
+- name: deploy-app
+  plan:
+  - get: flight-school
+    passed:
+    - test-app
+  - put: mesoform-triton-lab
+    on_success:
+      put: slack
+      params:
+        icon_emoji: ':white_check_mark:'
+        icon_url: http://cl.ly/image/3e1h0H3H2s0P/concourse-logo.png
+        text: |
+          . deploy image to Triton has succeeded
+          <http://http://192.168.77.193:8080/teams/my-team/pipelines/flight-school|View build details>
+        username: CI
+    on_failure:
+      put: slack
+      params:
+        icon_emoji: ':warning:'
+        icon_url: http://cl.ly/image/3e1h0H3H2s0P/concourse-logo.png
+        text: |
+          . deploy image to Triton has failed
+          <http://192.168.77.193:8080/teams/my-team/pipelines/flight-school|View build details>
         username: CI
