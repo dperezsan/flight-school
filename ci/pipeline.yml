@@ -28,6 +28,10 @@ resources:
       package: 7b17343c-94af-6266-e0e8-893a3b9993d0
 
 resource_types:
+- name: http-api
+  type: docker-image
+  source:
+    repository: aequitas/concourse-http-api-resource
 - name: slack-notification
   type: docker-image
   source:
