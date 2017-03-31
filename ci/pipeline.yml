@@ -4,6 +4,17 @@ resources:
   source:
     uri: https://github.com/dperezsan/flight-school
     branch: master
+- name: slack
+  type: slack-notification
+  source:
+    url: https://hooks.slack.com/services/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
+
+resource_types:
+- name: slack-notification
+  type: docker-image
+  source:
+    repository: cfcommunity/slack-notification-resource
+    tag: latest
 
 jobs:
 - name: test-app
@@ -12,3 +23,21 @@ jobs:
     trigger: true
   - task: tests
     file: flight-school/build.yml
+    on_success:
+      put: slack
+      params:
+        icon_emoji: ':white_check_mark:'
+        icon_url: http://cl.ly/image/3e1h0H3H2s0P/concourse-logo.png
+        text: |
+          . build tests passed
+          <http://http://192.168.100.4:8080/teams/my-team/pipelines/flight-school|View build details>
+        username: CI
+    on_failure:
+      put: slack
+      params:
+        icon_emoji: ':warning:'
+        icon_url: http://cl.ly/image/3e1h0H3H2s0P/concourse-logo.png
+        text: |
+          . build tests failed
+          <http://192.168.100.4:8080/teams/my-team/pipelines/flight-school|View build details>
+        username: CI
